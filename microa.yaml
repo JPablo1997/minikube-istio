@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-microa
+  labels:
+    account: sa-microa
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: microa-deployment
+  labels:
+    app: microa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microa
+  template:
+    metadata:
+      labels:
+        app: microa
+    spec:
+      serviceAccountName: sa-microa
+      containers:
+        - name: microa
+          image: jpablo1997/microa-image:latest
+          ports:
+            - containerPort: 3000
+          env:
+          - name: HOST_MICROSERVICE_C
+            valueFrom:
+              configMapKeyRef:
+                name: microc-config
+                key: microc-url
+          - name: HOST_MICROSERVICE_D
+            valueFrom:
+              configMapKeyRef:
+                name: microd-config
+                key: microd-url
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: microa-service
+spec:
+  type: NodePort
+  selector:
+    app: microa
+  ports:
+  - protocol: TCP
+    port: 3000
+    targetPort: 3000
+    nodePort: 30100

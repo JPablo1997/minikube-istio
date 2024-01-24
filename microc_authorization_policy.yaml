@@ -1,0 +1,17 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+ name: microc-ap
+ namespace: default
+spec:
+ selector:
+   matchLabels:
+     app: microc
+ action: ALLOW
+ rules:
+ - from:
+   - source:
+       principals: ["cluster.local/ns/default/sa/sa-microa"]
+   to:
+   - operation:
+       methods: ["GET"]

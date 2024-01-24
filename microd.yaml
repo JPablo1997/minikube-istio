@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-microd
+  labels:
+    account: sa-microd
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: microd-deployment
+  labels:
+    app: microd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microd
+  template:
+    metadata:
+      labels:
+        app: microd
+    spec:
+      serviceAccountName: sa-microd
+      containers:
+        - name: microd
+          image: jpablo1997/microd-image:latest
+          ports:
+          - containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: microd-service
+spec:
+  selector:
+    app: microd
+  ports:
+  - protocol: TCP
+    port: 3000
+    targetPort: 3000
